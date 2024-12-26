@@ -35,6 +35,10 @@ public:
 	int Replace(T oldValue, T newValue);
 	void Reverse();
 
+	Node* getHead() const {
+		return head;
+	}
+
 };
 #include "Banana.cpp"
 #endif // BANANA_H

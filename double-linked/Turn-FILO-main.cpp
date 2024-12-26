@@ -2,21 +2,32 @@
 #include<iostream>
 
 int main() {
-	Turn<int> queue;
+	
+	Turn<int> queue1;
+	Turn<int> queue2;
 
+	// Список 1
 	for (int i = 0; i < 10; ++i){
-		queue.push(i);
+		queue1.push(i);
 	}
 
-	std::cout << "Current size of queue: " << queue.size() << std::endl;
+	// Список 2
+	for (int i = 5; i < 15; ++i) {
+		queue2.push(i);
+	}
+	
+	Banana<int>  clonedQueue = queue1.clone();
+	std::cout << "Cloned Queue: ";
+	clonedQueue.Show();
 
-	std::cout << "Top element: " << queue.top() << std::endl;
+	Turn<int> combinedQueue = queue1 + queue2;
+	std::cout << "Combined Queue: ";
+	combinedQueue.Show();
 
-	queue.pop();
-	std::cout << "After popping, top element: " << queue.top() << std::endl;
+	Turn<int>  commonQueue = queue1 * queue2;
+	std::cout << "Common Queue: ";
+	commonQueue.Show();
 
-	queue.clear();
-	std::cout << "After clearing, size of queue: " << queue.size() << std::endl;
 
 	return 0;
 }
