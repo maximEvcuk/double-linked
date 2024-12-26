@@ -3,36 +3,38 @@
 
 
 template <typename T>
-Turn<T>::Turn(size_t capacity) : array(capacity) {}
-
-template <typename T>
 void Turn<T>::push(const T& value) {
-	array.append(value);
+	list.AddToHead(value);
 }
+
 
 template <typename T>
 void Turn<T>::pop() {
-	if (array.getSize() == 0) {
-		throw std::out_of_range("Stack is empty. Cannot  pop.");
+	if (list.Search(T()) == -1) {
+		throw std::out_of_range("Queue is empty. Cannot  pop.");
 	}
-	array.erase(0);
+	list.DeleteFromTail();
 }
 
 template <typename T>
 T Turn<T>::top() const {
-	if (array.getSize() == 0) {
-		throw std::out_of_range("Stack is empty. Cannot access top.");
+	if (list.Search(T()) == -1) {
+		throw std::out_of_range("Queue is empty. Cannot access top.");
 	}
-	return array[0];
+    return	list.Search(T());
 }
 
 template <typename T>
 void Turn<T>::clear() {
-	array.clear();
+	list.DeleteAll();
 }
 
 template <typename T>
 size_t Turn<T>::size() const {
-	return array.getSize();
+	int count = 0;
+	for (int i = 0; list.Search(T()) != -1; i++){
+		count++;
+	}
+	return count;
 }
 

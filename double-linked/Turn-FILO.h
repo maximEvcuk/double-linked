@@ -1,15 +1,13 @@
 #pragma once
-
-
-#include"Array.h"
+#include "Banana.h"
 
 template <typename T>
 class Turn {
 private:
-	Array<T> array;
+	Banana<T> list;
 
 public:
-	Turn(size_t capacity = 10);
+	Turn() = default;
 	void push(const T& value);
 	void pop();
 	T top() const;

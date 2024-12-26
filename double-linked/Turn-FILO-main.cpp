@@ -4,8 +4,7 @@
 int main() {
 	Turn<int> queue;
 
-	for (int i = 0; i < 10; ++i)
-	{
+	for (int i = 0; i < 10; ++i){
 		queue.push(i);
 	}
 
