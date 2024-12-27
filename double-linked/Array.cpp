@@ -4,51 +4,35 @@
 
 
 template <typename T>
-Array<T>::Array(size_t initialCapacity) : size(0), capacity(initialCapacity) {
-    arr = new T[capacity]();
-}
+Array<T>::Array() : size(0){}
 
 template <typename T>
-Array<T>::Array(size_t n, bool random) : size(n), capacity(n) {
-    arr = new T[capacity];
-    if (random)
-    {
-        fillWithRandomValues();
+Array<T>::Array(size_t n, bool random) : size(n) {
+    for (size_t i = 0; i < n; ++i){
+        add(random ? rand() % 100 : T())
+    }
+}
+
+
+template <typename T>
+Array<T>::Array(const Array& other) : size(other.size) {
+    for (size_t i = 0; i < other.size; ++i) {
+        list.AddToTail(other.list.getHead()->data);
     }
 }
 
 template <typename T>
-Array<T>::Array(size_t n, T min, T max) : size(n), capacity(n) {
-    arr = new T[capacity];
-    for (size_t i = 0; i < size; ++i) {
-        arr[i] = min + static_cast<T>(rand() % (max - min + 1));
-    }
-}
-
-template <typename T>
-Array<T>::Array(const Array& other) : size(other.size), capacity(other.capacity) {
-    arr = new T[capacity];
-    for (size_t i = 0; i < size; ++i) {
-        arr[i] = other.arr[i];
-    }
-}
-
-template <typename T>
-Array<T>::Array(Array&& other) noexcept : arr(other.arr), size(other.size), capacity(other.capacity) {
-    other.arr = nullptr;
+Array<T>::Array(Array&& other) noexcept : list(std::move(other.list)), size(other.size) {
     other.size = 0;
-    other.getCapacity = 0;
 }
 
 template <typename T>
 Array<T>& Array<T>::operator=(const Array& other) {
     if (this != &other) {
-        delete[] arr;
+        removeAll();
         size = other.size;
-        capacity = other.capacity;
-        arr = new T[capacity];
-        for (size_t i = 0; i < size; ++i) {
-            arr[i] = other.arr[i];
+        for (size_t i = 0; i < other.size; ++i) {
+            list.AddToTail(other.list.getHead()->data);
         }
     }
     return *this;
@@ -57,12 +41,10 @@ Array<T>& Array<T>::operator=(const Array& other) {
 template <typename T>
 Array<T>& Array<T>::operator=(Array&& other) noexcept {
     if (this != &other) {
-        delete[] arr;
+        removeAll();
+        list = std::move(other.list);
         size = other.size;
-        capacity = other.capacity;
-        arr = other.arr;
-        other.size = 0;
-        other.capacity = 0;;
+        other.size = 0
     }
     return *this;
 }
@@ -70,132 +52,91 @@ Array<T>& Array<T>::operator=(Array&& other) noexcept {
 
 template <typename T>
 Array<T>::~Array() {
-    delete[] arr;
+    removeAll();
 }
-
-template <typename T>
-void Array<T>::display() const {
-    for (size_t i = 0; i < size; ++i) {
-        std::cout << arr[i] << " ";
-    }
-    std::cout << std::endl;
-}
-
-template <typename T>
-void Array<T>::fillWithRandomValues() {
-    for (size_t i = 0; i < size; ++i) {
-        arr[i] = static_cast<T>(rand() % 100);
-    }
-}
-
-
-template <typename T>
-void Array<T>::resize(size_t newSize) {
-    if (newSize > capacity)
-    {
-        reserve(newSize);
-    }
-    size = newSize;
-}
-
-template <typename T>
-void Array<T>::sort() {
-    std::sort(arr, arr + size);
-}
-
-template <typename T>
-T Array<T>::min() const {
-    if (size == 0) {
-        std::cout << "Array is empty" << std::endl;
-        return T();
-    }
-
-    T minValue = arr[0];
-    for (size_t i = 0; i < size; ++i) {
-        if (arr[i] < minValue) {
-            minValue = arr[i];
-        }
-    }
-    return minValue;
-}
-
-template <typename T>
-T Array<T>::max() const {
-    if (size == 0) {
-        std::cout << "Array is empty" << std::endl;
-        return T();
-    }
-
-
-    T maxValue = arr[0];
-    for (size_t i = 0; i < size; ++i) {
-        if (arr[i] > maxValue) {
-            maxValue = arr[i];
-        }
-    }
-    return maxValue;
-}
-
 template <typename T>
 size_t Array<T>::getSize() const {
     return size;
 }
 
 template <typename T>
-size_t Array<T>::getCapacity() const {
-    return capacity;
+size_t Array<T>::getUpperBound() const {
+    return size == 0 & -1 : size - 1;
 }
 
 template <typename T>
-void Array<T>::append(T value) {
-    if (size >= capacity)
-    {
-        reserve(capacity * 2);
-    }arr[size++] = value;
+bool Array<T>::isEmpty() const {
+    return size == 0;
 }
 
 template <typename T>
-void Array<T>::erase(size_t index) {
-    if (size > index)
-    {
-        for (size_t i = index; i < size - 1; ++i) {
-            arr[i] = arr[i + 1];
-        }
-        size--;
-    }
-}
+bool Array<T>::freeExtra() {}
 
 template <typename T>
-void Array<T>::clear() {
+bool Array<T>::removeAll() {
+    list.DeleteAll();
     size = 0;
 }
 
 template <typename T>
-void Array<T>::reserve(size_t newCapacity) {
-    if (newCapacity > capacity) {
-        T* newArr = new T[newCapacity];
-        for (size_t i = 0; i < size; ++i) {
-            newArr[i] = arr[i];
+T Array<T>::getAt(size_t index) const {
+    if (index >=size) throw std::out_of_range("Index goes beyond the limits: ");
+    Node* current = list.getHead();
+    for (size_t i = 0; i < index; ++i){
+        current = current->next;
+    }
+    return current->data;
+}
+
+template <typename T>
+void Array<T>::setAt(size_t index, T value)  {
+    if (index >= size) throw std::out_of_range("Index goes beyond the limits: ");
+    Node* current = list.getHead();
+    for (size_t i = 0; i < index; ++i) {
+        current = current->next;
+    }
+     current->data = value;
+}
+template <typename T>
+T& Array<T>::operator[](size_t index) {
+    return const_cast<T&>(getAt(index));
+}
+
+template <typename T>
+void Array<T>::add(T value) {
+    list.AddToTail(value);
+    size++;
+}
+
+template <typename T>
+void Array<T>::append(const Array& other) {
+    for (size_t i = 0; i < other.size; ++i){
+        add(other.getAt(i));
+    }
+}
+template <typename T>
+void Array<T>::insertAt(size_t index, T value) {
+    if (index > size) throw std::out_of_range("Index goes beyond the limits: ");
+    if (index == size){
+        add(value);
+    }
+    else {
+        Node* current = list.getHead();
+        for (size_t i = 0; i < index; ++i){
+            current = current->next;
         }
-        delete[] arr;
-        arr = newArr;
-        size = newCapacity;
+        list.InsertAtPosition(value, index);
+        size++;
     }
 }
 
 template <typename T>
-void Array<T>::shrink() {
-    if (size < capacity)
-    {
-        T* newArr = new T[size];
-        for (size_t i = 0; i < size; ++i) {
-            newArr[i] = arr[i];
-        }
-        delete[] arr;
-        arr = newArr;
-        capacity = size;
-    }
+void Array<T>::removeAt(size_t index) {
+    if (index >= size) throw std::out_of_range("Index goes beyond the limits: ");
+    list.DeleteAtPosition(index);
+    size--;
 }
+
 
 
 #include"Array(1).h"
